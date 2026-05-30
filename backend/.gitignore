@@ -1,0 +1,22 @@
+# Virtual environment
+venv/
+.venv/
+
+# File rahasia
+.env
+
+# File cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# File upload gambar
+uploads/
+
+# AI Model (ukurannya besar)
+ai_model/*.keras
+ai_model/*.h5
+
+# IDE
+.vscode/
+.idea/
