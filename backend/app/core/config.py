@@ -29,6 +29,10 @@ class Settings(BaseSettings):
 
     # --- AI Model ---
     MODEL_PATH: str = "ai_model/model_tomato_leaf_guardai.keras"
+    MODEL_INPUT_SIZE: int | None = None
+    MODEL_CLASS_NAMES: str | None = None
+    REMOVE_BACKGROUND_ENABLED: bool = True
+    PROCESSED_UPLOAD_DIR: str = "uploads/processed"
 
     @classmethod
     def settings_customise_sources(

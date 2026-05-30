@@ -103,6 +103,15 @@ def seed_diseases():
             prevention="Benih bebas penyakit, hindari penyiraman dari atas.",
             severity_level="medium"
         ),
+        DiseaseInfo(
+            class_name="Tidak_Terdefinisi",
+            display_name="Tidak Terdefinisi",
+            description="Foto tidak cocok dengan class penyakit atau daun sehat yang dikenal model.",
+            symptoms="Objek pada foto tidak sesuai dengan dataset daun tomat yang dilatih pada model.",
+            treatment="Ulangi diagnosis dengan foto daun tomat yang jelas, fokus, dan memiliki pencahayaan cukup.",
+            prevention="Gunakan foto daun tomat yang memenuhi area gambar dan hindari objek selain daun.",
+            severity_level="unknown"
+        ),
     ]
 
     db.add_all(diseases)

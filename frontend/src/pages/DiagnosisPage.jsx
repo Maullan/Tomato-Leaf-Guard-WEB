@@ -5,8 +5,6 @@ import logo from "../assets/logo.png";
 import diagnosisService from "../services/diagnosisService";
 import { getErrorMessage } from "../services/api";
 
-const BASE_URL = import.meta.env.VITE_API_URL?.replace("/api/v1", "") || "http://localhost:8000";
-
 export default function DiagnosisPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -301,13 +299,16 @@ export default function DiagnosisPage() {
                               className={`h-full rounded-full transition-all ${
                                 severity.label === "Tinggi" ? "bg-red-500"
                                 : severity.label === "Sedang" ? "bg-yellow-500"
+                                : severity.label === "Tidak Diketahui" ? "bg-gray-400"
                                 : "bg-green-500"
                               }`}
-                              style={{ width: `${result.severity_percent || 0}%` }}
+                              style={{ width: `${result.severity_percent ?? 0}%` }}
                             />
                           </div>
                           <span className="text-gray-500 text-lg">
-                            {result.severity_percent?.toFixed(0) || 0}%
+                            {result.severity_percent === null || result.severity_percent === undefined
+                              ? "-"
+                              : `${result.severity_percent.toFixed(0)}%`}
                           </span>
                         </div>
 

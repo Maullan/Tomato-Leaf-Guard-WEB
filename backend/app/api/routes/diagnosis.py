@@ -1,6 +1,6 @@
 # app/api/routes/diagnosis.py
-import os
 import uuid
+from pathlib import Path
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -32,6 +32,18 @@ def validate_image(file: UploadFile) -> None:
         )
 
 
+def get_upload_url(file_path: str | Path) -> str:
+    upload_root = Path(settings.UPLOAD_DIR).resolve()
+    path = Path(file_path).resolve()
+
+    try:
+        relative_path = path.relative_to(upload_root)
+    except ValueError:
+        relative_path = path.name
+
+    return f"/uploads/{Path(relative_path).as_posix()}"
+
+
 @router.post("/", response_model=DiagnosisResponse, status_code=201)
 async def diagnose(
     file: UploadFile = File(..., description="Foto daun tomat"),
@@ -42,27 +54,38 @@ async def diagnose(
     # 1. Validasi file
     validate_image(file)
 
-    # 2. Simpan file ke folder uploads
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    # 2. Simpan file original ke folder uploads/original
+    upload_dir = Path(settings.UPLOAD_DIR)
+    original_dir = upload_dir / "original"
+    original_dir.mkdir(parents=True, exist_ok=True)
+
     file_ext = file.filename.split(".")[-1].lower()
-    unique_filename = f"{uuid.uuid4()}.{file_ext}"
-    file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
+    file_id = uuid.uuid4()
+    unique_filename = f"{file_id}.{file_ext}"
+    file_path = original_dir / unique_filename
 
     with open(file_path, "wb") as f:
         content = await file.read()
         f.write(content)
 
-    # 3. Jalankan AI inference
+    # 3. Jalankan pipeline model AI. ai_service akan melakukan remove bg jika dibutuhkan.
+    processed_dir = Path(settings.PROCESSED_UPLOAD_DIR)
+    processed_path = processed_dir / f"{file_id}_nobg.jpg"
     from app.services.ai_service import predict_disease
-    prediction = predict_disease(file_path)
+    prediction = predict_disease(
+        str(file_path),
+        processed_output_path=str(processed_path),
+    )
+
+    prediction_path = Path(prediction.get("processed_image_path") or file_path)
 
     # 4. Cari disease_info berdasarkan class_name hasil prediksi
     disease = db.query(DiseaseInfo).filter(
         DiseaseInfo.class_name == prediction["class_name"]
     ).first()
 
-    # 5. Simpan hasil ke database (simpan relative path untuk URL)
-    image_url = f"/uploads/{unique_filename}"
+    # 5. Simpan hasil ke database (tampilkan gambar yang sudah diproses jika tersedia)
+    image_url = get_upload_url(prediction_path)
     diagnosis = DiagnosisHistory(
         user_id=current_user.id,
         disease_id=disease.id if disease else None,

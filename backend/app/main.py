@@ -126,6 +126,15 @@ def seed_diseases(db):
             prevention="Lanjutkan praktik perawatan yang baik: penyiraman teratur, pemupukan seimbang.",
             severity_level="low"
         ),
+        DiseaseModel(
+            class_name="Tidak_Terdefinisi",
+            display_name="Tidak Terdefinisi",
+            description="Foto tidak cocok dengan class penyakit atau daun sehat yang dikenal model.",
+            symptoms="Objek pada foto tidak sesuai dengan dataset daun tomat yang dilatih pada model.",
+            treatment="Ulangi diagnosis dengan foto daun tomat yang jelas, fokus, dan memiliki pencahayaan cukup.",
+            prevention="Gunakan foto daun tomat yang memenuhi area gambar dan hindari objek selain daun.",
+            severity_level="unknown"
+        ),
     ]
     for disease in diseases:
         existing = db.query(DiseaseModel).filter(
@@ -161,8 +170,8 @@ app.add_middleware(
 )
 
 # Serve static files (gambar upload)
-os.makedirs("uploads", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 app.include_router(auth.router,      prefix="/api/v1/auth",      tags=["Authentication"])
 app.include_router(diagnosis.router, prefix="/api/v1/diagnosis", tags=["Diagnosis"])

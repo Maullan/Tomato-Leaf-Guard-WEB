@@ -66,6 +66,12 @@ const DISEASE_SOLUTIONS = {
     "Berikan pupuk berimbang N-P-K sesuai kebutuhan",
     "Pantau tanaman secara rutin untuk deteksi dini masalah",
   ],
+  Tidak_Terdefinisi: [
+    "Ulangi diagnosis dengan foto daun tomat yang jelas dan fokus",
+    "Pastikan objek utama adalah daun tomat, bukan tanah, pot, buah, atau tanaman lain",
+    "Gunakan pencahayaan cukup agar tekstur dan warna daun terlihat",
+    "Ambil foto dari jarak lebih dekat hingga daun memenuhi sebagian besar gambar",
+  ],
 };
 
 export default function SolutionPage() {
@@ -137,7 +143,11 @@ export default function SolutionPage() {
                 Confidence: {((diagnosis.confidence_score || 0) * 100).toFixed(0)}%
               </span>
               <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-lg text-sm font-medium">
-                Keparahan: {(diagnosis.severity_percent || 0).toFixed(0)}%
+                Keparahan: {
+                  diagnosis.severity_percent === null || diagnosis.severity_percent === undefined
+                    ? "Tidak diketahui"
+                    : `${diagnosis.severity_percent.toFixed(0)}%`
+                }
               </span>
             </div>
           </div>
